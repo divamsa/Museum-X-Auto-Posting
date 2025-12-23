@@ -1,0 +1,5 @@
+{
+  "name": "MusePost Semi-Auto",
+  "description": "小規模な博物館・美術館向けにX（旧Twitter）の発信を支援する、人間中心の半自動投稿管理アプリ。Gemini APIによる内容生成とGoogle Spreadsheet連携を核とした安全な運用をサポートします。",
+  "requestFramePermissions": []
+}
