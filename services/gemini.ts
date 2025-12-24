@@ -6,6 +6,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 export interface GenerationResult {
   title: string;
   body: string;
+  angle: string; // 投稿の切り口（例：イベント紹介、裏話、豆知識など）
 }
 
 export const generateXPost = async (input: string, inputType: 'TEXT' | 'URL' | 'FILE'): Promise<GenerationResult[]> => {
@@ -13,28 +14,27 @@ export const generateXPost = async (input: string, inputType: 'TEXT' | 'URL' | '
 
   const systemInstruction = `
     あなたは公共文化施設（博物館・美術館）の広報担当者です。
-    提供された情報を元に、X（旧Twitter）向けの投稿案を【10個】作成してください。
+    提供された情報を元に、X（旧Twitter）向けの投稿案を【必ず10個】、異なる視点や切り口で作成してください。
     
-    【生成のバリエーション指示】
-    以下の異なる切り口を混ぜて10個作成してください：
-    1. 展示の見どころ紹介
-    2. 職員の裏話・準備風景
-    3. 来館案内（アクセス・混雑状況想定）
-    4. 展示物にまつわる豆知識・クイズ
-    5. 期間限定イベントの告知
+    【生成バリエーションの必須項目（以下の視点をバランスよく配置）】
+    1. 【見どころ】展示のメインビジュアルや目玉の紹介
+    2. 【背景/歴史】展示品にまつわる深い歴史やストーリー
+    3. 【職員の目】準備中のエピソードや職員だけが知る魅力
+    4. 【来館案内】アクセス、チケット情報、現在の混雑状況（想定）
+    5. 【クイズ/豆知識】フォロワーの興味を引く問いかけ
+    6. 【お子様向け】家族連れにアピールする内容
+    7. 【フォトスポット】SNS映えする場所の紹介
+    8. 【ショップ/カフェ】併設施設やグッズの紹介
+    9. 【期間限定】「いまだけ」を強調した告知
+    10. 【情緒】展示空間の雰囲気や、静かな鑑賞のすすめ
     
     【制約事項】
-    - 1件あたりのタイトル: 内容を要約した短いタイトル（15文字以内）。
-    - 1件あたりの本文: 親しみやすく、正確。文字数は必ず150文字以内に収めること。
-    - ハッシュタグは各投稿に2つまで。
-    - 安全性: 未公開情報や個人情報は除外すること。
-    - トーン: 誠実、知的好奇心を刺激する、落ち着いたトーン。
+    - タイトル: 15文字以内。
+    - 本文: 150文字以内。ハッシュタグ2つ以内。正確かつ誠実なトーン。
+    - 安全性: 未公開情報や個人情報は除外。
   `;
 
-  const prompt = `
-    以下の${inputType === 'URL' ? 'URLの内容' : '提供データ'}を元に、投稿案を10個作成してください。
-    内容: ${input}
-  `;
+  const prompt = `以下のデータを元に、指示に従って10個の投稿案を作成してください。\n内容: ${input}`;
 
   try {
     const response = await ai.models.generateContent({
@@ -49,9 +49,10 @@ export const generateXPost = async (input: string, inputType: 'TEXT' | 'URL' | '
             type: Type.OBJECT,
             properties: {
               title: { type: Type.STRING, description: "投稿のタイトル" },
-              body: { type: Type.STRING, description: "150文字以内の投稿本文" }
+              body: { type: Type.STRING, description: "150文字以内の本文" },
+              angle: { type: Type.STRING, description: "この案の切り口（例：豆知識）" }
             },
-            required: ["title", "body"]
+            required: ["title", "body", "angle"]
           }
         }
       }
@@ -61,6 +62,6 @@ export const generateXPost = async (input: string, inputType: 'TEXT' | 'URL' | '
     return results as GenerationResult[];
   } catch (error) {
     console.error("Gemini API Error:", error);
-    throw new Error("投稿の生成に失敗しました。入力内容を確認してください。");
+    throw new Error("生成に失敗しました。時間をおいて再度お試しください。");
   }
 };

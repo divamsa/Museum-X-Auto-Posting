@@ -31,6 +31,7 @@ export interface PostData {
   generatedTitle: string;    // 生成されたタイトル
   generatedBody: string;     // 生成された本文（150字以内）
   editedBody?: string;       // ユーザーによる修正後の本文
+  angle?: string;            // 生成時の切り口（例：豆知識、見どころ）
   status: PostStatus;
   spreadsheetRow?: number;   // 連携先スプレッドシートの行番号
   postUrl?: string;          // 投稿成功時のURL

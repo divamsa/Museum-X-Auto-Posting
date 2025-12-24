@@ -3,67 +3,137 @@ import React from 'react';
 
 const Documentation: React.FC = () => {
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-10 prose prose-slate max-h-[80vh] overflow-y-auto">
-      <h1 className="text-3xl font-bold text-slate-900 mb-6">MusePost Semi-Auto 要件定義 & 設計書</h1>
-
-      <h2 className="text-xl font-bold mt-8 mb-4 border-l-4 border-indigo-500 pl-3">1. プロダクト概要</h2>
-      <p>小規模な博物館・美術館職員の「SNS発信の心理的・時間的ハードル」を解消する半自動投稿管理アプリです。AIによる原稿作成、Spreadsheetでの共同編集、Xへの連携を一つのフローで完結させます。</p>
-
-      <h2 className="text-xl font-bold mt-8 mb-4 border-l-4 border-indigo-500 pl-3">2. ユーザー操作フロー</h2>
-      <ol className="list-decimal pl-5 space-y-2 text-slate-700">
-        <li><strong>入力：</strong> 職員がチラシやプレスリリースのURL、テキストを入力。</li>
-        <li><strong>生成：</strong> Gemini APIが「公報トーン」で150文字以内の投稿案を生成。</li>
-        <li><strong>連携：</strong> 生成結果を管理用Google Spreadsheetへ自動追記。</li>
-        <li><strong>確認：</strong> 職員がSpreadsheet上で内容を最終確認・修正。</li>
-        <li><strong>実行：</strong> アプリ画面から「投稿」をクリック。API経由、または手動コピーでXへ。</li>
-      </ol>
-
-      <h2 className="text-xl font-bold mt-8 mb-4 border-l-4 border-indigo-500 pl-3">3. 入力データ処理設計</h2>
-      <ul className="list-disc pl-5 space-y-1">
-        <li><strong>テキスト：</strong> 直接入力された文字を解析。</li>
-        <li><strong>Web URL：</strong> 指定URLのページコンテンツをGeminiに読み込ませて要約。</li>
-        <li><strong>ドキュメント：</strong> PDF/Word等からのテキスト抽出はGeminiのマルチモーダル機能または前処理ライブラリで対応。</li>
-      </ul>
-
-      <h2 className="text-xl font-bold mt-8 mb-4 border-l-4 border-indigo-500 pl-3">4. X投稿生成ロジック</h2>
-      <p><strong>文字数制御：</strong> 厳格に150文字以内。AIへのSystem Instructionで強制。<br />
-      <strong>トーン：</strong> 「公共性・信頼性・知的好奇心」を軸とした。炎上リスク回避のため、断定的な表現や感情的な言葉遣いを抑制する指示を組み込む。</p>
-
-      <h2 className="text-xl font-bold mt-8 mb-4 border-l-4 border-indigo-500 pl-3">5. Google Spreadsheet 連携設計</h2>
-      <p>Google Sheets APIを使用。A列:ID, B列:生成日時, C列:タイトル, D列:本文(AI案), E列:本文(修正用), F列:状態。ユーザーはE列のみを操作することを想定。</p>
-
-      <h2 className="text-xl font-bold mt-8 mb-4 border-l-4 border-indigo-500 pl-3">6. X投稿設計</h2>
-      <p>X API v2 を使用。<strong>自動投稿不可の条件：</strong> APIレート制限超過、認証切れ、140文字超過（英字考慮）、画像添付要件ありの場合。代替案として「手動投稿用データ確定（クリップボードコピー）」を提供。</p>
-
-      <h2 className="text-xl font-bold mt-8 mb-4 border-l-4 border-indigo-500 pl-3">7. エラー・失敗ケース</h2>
-      <ul className="list-disc pl-5 space-y-1">
-        <li><strong>APIエラー：</strong> 指数バックオフによるリトライ、およびユーザーへの明確な失敗通知。</li>
-        <li><strong>ハルシネーション：</strong> 生成文に「※AI生成につき要確認」のフラグを立て、人間の目視を必須化。</li>
-      </ul>
-
-      <h2 className="text-xl font-bold mt-8 mb-4 border-l-4 border-indigo-500 pl-3">8. セキュリティ・監査設計</h2>
-      <p>入力データはセッション終了後に破棄。Spreadsheet自体を監査ログとして活用。投稿履歴には操作したユーザーIDを記録可能にする。</p>
-
-      <h2 className="text-xl font-bold mt-8 mb-4 border-l-4 border-indigo-500 pl-3">9. MVPとして割り切る点</h2>
-      <ul className="list-disc pl-5 space-y-1">
-        <li>画像の自動生成・加工は含めない（著作権リスク回避）。</li>
-        <li>複数アカウントの同時管理は非対応。</li>
-        <li>予約投稿はSpreadsheet側での管理、または外部サービス連携を推奨。</li>
-      </ul>
-
-      <h2 className="text-xl font-bold mt-8 mb-4 border-l-4 border-indigo-500 pl-3">10. 実装リスクと回避策</h2>
-      <p><strong>リスク：</strong> X APIの突然の仕様変更・有料化。 <br />
-      <strong>回避策：</strong> クリップボード経由の手動投稿UIを「プライマリな代替」として最初から組み込み、APIが死んでも業務が止まらない設計にする。</p>
+    <div className="max-w-4xl mx-auto bg-white rounded-[2rem] shadow-xl p-10 prose prose-slate max-h-[80vh] overflow-y-auto selection:bg-indigo-100">
       
-      <div className="mt-12 bg-slate-100 p-6 rounded-lg font-mono text-xs overflow-x-auto">
-        <h3 className="font-bold mb-2">実装用JSONスキーマ</h3>
+      {/* 初心者向けマニュアルセクション */}
+      <section className="mb-16 border-b-2 border-slate-100 pb-12">
+        <div className="bg-indigo-600 text-white p-8 rounded-[2rem] mb-10 shadow-lg shadow-indigo-100">
+          <h1 className="text-3xl font-black mb-2 text-white border-none">🔰 はじめての MusePost 操作ガイド</h1>
+          <p className="text-indigo-100 font-medium m-0">
+            このアプリは、博物館・美術館の「お知らせ」をX（Twitter）用に変換するお手伝いをします。
+            PC（Windows/Mac）のブラウザで、以下の5つのステップに沿って進めるだけです。
+          </p>
+        </div>
+
+        <div className="space-y-12">
+          <div className="flex gap-6 items-start">
+            <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-black text-xl shrink-0">1</div>
+            <div>
+              <h3 className="text-xl font-black text-slate-800 m-0 mb-2">「Create (作成)」タブを開く</h3>
+              <p className="text-slate-600 leading-relaxed">
+                画面上のメニューから「✨ Create」を選びます。ここが文章を作る入り口です。
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-6 items-start">
+            <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-black text-xl shrink-0">2</div>
+            <div>
+              <h3 className="text-xl font-black text-slate-800 m-0 mb-2">情報を入力する</h3>
+              <p className="text-slate-600 leading-relaxed">
+                チラシの文章や、展示の紹介文をコピーして、大きな白い枠（Source Content）に貼り付けます。<br />
+                <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-bold">ポイント</span> 
+                「テキスト入力」を選んでいれば、短いメモ書きからでも作成可能です。
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-6 items-start">
+            <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-black text-xl shrink-0">3</div>
+            <div>
+              <h3 className="text-xl font-black text-slate-800 m-0 mb-2">「10案生成」ボタンを押す</h3>
+              <p className="text-slate-600 leading-relaxed">
+                一番下の紫色のボタンを押すと、AIが動き始めます。約10秒〜20秒ほどで、10個の異なる「切り口」の案ができあがります。
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-6 items-start">
+            <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-black text-xl shrink-0">4</div>
+            <div>
+              <h3 className="text-xl font-black text-slate-800 m-0 mb-2">「Board (ボード)」で比較する</h3>
+              <p className="text-slate-600 leading-relaxed">
+                できあがった10個のカードが並んでいます。
+                「見どころ紹介風」「クイズ風」「お子様向け」など、AIが考えた案を読み比べて、一番イメージに近いものを選びます。
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-6 items-start">
+            <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-black text-xl shrink-0">5</div>
+            <div>
+              <h3 className="text-xl font-black text-slate-800 m-0 mb-2">修正して投稿する</h3>
+              <p className="text-slate-600 leading-relaxed font-bold text-indigo-700">
+                ここが一番重要です！必ず人間の目で内容（日付、場所、展示名）が合っているか確認してください。
+              </p>
+              <ul className="text-sm text-slate-600 mt-2 list-disc pl-5">
+                <li>「編集する」ボタンを押すと、その場で文章を書き直せます。</li>
+                <li>「コピーしてXへ」ボタンを押すと、文章がPCに保存されます。</li>
+                <li>あとは、いつものようにXを開いて「貼り付け（右クリックまたはCtrl+V）」して投稿するだけです！</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-12 bg-slate-50 p-6 rounded-2xl border-2 border-slate-200">
+          <h4 className="text-sm font-black text-slate-700 mb-2 flex items-center gap-2">
+            <span className="text-lg">💡</span> IT担当者・広報担当者へのお願い
+          </h4>
+          <p className="text-xs text-slate-500 m-0 leading-relaxed">
+            このツールは「自動投稿」を目的としたものではなく、忙しい職員さんの「下書き作成時間をゼロにする」ためのものです。
+            最後は必ず職員さんの手で内容を確認して、館の雰囲気に合わせて微調整することをお勧めしてください。
+          </p>
+        </div>
+      </section>
+
+      {/* 技術・システム仕様セクション */}
+      <h2 className="text-2xl font-black text-slate-900 mb-6 border-b-4 border-slate-900 pb-2 inline-block">システム詳細・設計仕様書 v2.5</h2>
+
+      <h3 className="text-xl font-bold mt-8 mb-4 border-l-4 border-indigo-500 pl-3">1. コンセプト：人間中心の半自動化</h3>
+      <p>
+        小規模な公共文化施設における「SNS運用への心理的抵抗」と「ハルシネーション（AIの嘘）」のリスクを最小化するため、
+        あえて**「AIが10案出し、人間が1つ選んで修正する」**というワークフローを固定化しています。
+      </p>
+
+      <h3 className="text-xl font-bold mt-8 mb-4 border-l-4 border-indigo-500 pl-3">2. 10案一括生成の意図</h3>
+      <p>
+        AIに「1つだけ完璧な案を作れ」と指示するのではなく、あえて「異なる視点から10案」作らせることで、
+        ユーザー（職員）に「比較して選ぶ」という主導権を与えます。これにより、AIの出力に対する無意識な盲信を防ぎ、
+        必然的に「内容を精査する」というフローを自然な形で組み込んでいます。
+      </p>
+
+      <h3 className="text-xl font-bold mt-8 mb-4 border-l-4 border-indigo-500 pl-3">3. 動作環境・互換性</h3>
+      <p>
+        本アプリは最新のWeb技術（React 19, Gemini 3-flash）を用いて構築されています。
+        <strong>Windows 10/11 の Microsoft Edge / Google Chrome</strong> での動作を確認済みです。
+        特定のソフトウェアのインストールは不要で、ブラウザのみで動作するため、行政ネットワーク等の制限された環境でも導入が容易です。
+      </p>
+
+      <h3 className="text-xl font-bold mt-8 mb-4 border-l-4 border-indigo-500 pl-3">4. 入力データの制限と安全性</h3>
+      <p>
+        <strong>入力：</strong> 公開済みのWebサイトURL、イベント情報テキスト。<br />
+        <strong>除外：</strong> 個人情報、未発表の研究データ、内部会議資料。<br />
+        <strong>リスク管理：</strong> AIによる生成文には、公的機関として不適切な過激な表現、政治的・宗教的な偏りを抑制する厳格なプロンプト（指示）が組み込まれています。
+      </p>
+
+      <h3 className="text-xl font-bold mt-8 mb-4 border-l-4 border-indigo-500 pl-3">5. 今後のアップデート予定 (Roadmap)</h3>
+      <ul className="list-disc pl-5 space-y-1">
+        <li>画像の自動リサイズ・プレビュー機能。</li>
+        <li>過去の「反応が良かった投稿」を元にしたトーン学習。</li>
+        <li>他部署との共有用「承認ステータス」の外部連携。</li>
+      </ul>
+
+      <div className="mt-12 bg-slate-900 p-8 rounded-[2rem] font-mono text-xs overflow-x-auto text-indigo-300">
+        <h3 className="font-bold mb-4 text-white uppercase tracking-widest text-[10px] border-b border-indigo-900 pb-2">Technical Implementation Schema</h3>
         <pre>{`{
-  "post_schema": {
-    "id": "uuid",
-    "timestamp": "iso8601",
-    "source": { "type": "TEXT|URL|FILE", "content": "string" },
-    "output": { "title": "string(15)", "body": "string(150)" },
-    "workflow": { "status": "DRAFT|SYNCED|APPROVED|POSTED|FAILED", "reviewer": "string" }
+  "system_role": "Public Museum PR Assistant",
+  "ai_model": "Gemini 3 Flash (Latest)",
+  "batch_size": 10,
+  "output_constraints": {
+    "title_limit": 15,
+    "body_limit": 150,
+    "safety_filter": "high",
+    "tone": "Academic yet accessible"
   }
 }`}</pre>
       </div>
