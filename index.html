@@ -4,11 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MusePost | 博物館・美術館 広報支援システム</title>
+    
+    <!-- Security & Env Shim -->
+    <script>
+        // process.env.API_KEYへのアクセスによるクラッシュを防止
+        window.process = { env: { API_KEY: "" } };
+    </script>
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700;900&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     
-    <!-- UI Framework -->
+    <!-- UI Framework (Tailwind) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -33,7 +41,7 @@
     <style>
         body { background-color: #F9F7F2; color: #1A1C2C; margin: 0; }
         #root:empty::before {
-            content: "Museum Intelligence System Initializing...";
+            content: "🏛️ 博物館システムを起動中...";
             display: flex; justify-content: center; align-items: center; height: 100vh;
             font-family: serif; font-weight: bold; color: #C5A059; letter-spacing: 0.1em;
             background: #F9F7F2;
@@ -45,62 +53,57 @@
         }
     </style>
 
-    <!-- Global Shim -->
-    <script>
-        window.process = { env: { API_KEY: "" } };
-    </script>
-
-    <!-- Import Map -->
+    <!-- 
+        Import Map: 
+        バージョンの混在を防ぐため、すべて 19.0.0 に統一します。
+        これがズレると React Error #321 (Invalid hook call) が発生します。
+    -->
     <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@19.0.0",
-    "react-dom": "https://esm.sh/react-dom@19.0.0",
-    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
-    "@google/genai": "https://esm.sh/@google/genai@1.3.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/"
-  }
-}
-</script>
+    {
+      "imports": {
+        "react": "https://esm.sh/react@19.0.0",
+        "react-dom": "https://esm.sh/react-dom@19.0.0",
+        "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+        "@google/genai": "https://esm.sh/@google/genai@1.3.0",
+        "react/": "https://esm.sh/react@19.0.0/",
+        "react-dom/": "https://esm.sh/react-dom@19.0.0/"
+      }
+    }
+    </script>
 </head>
 <body>
     <div id="root"></div>
 
     <!-- 
-      Modern ESM Runner: 
-      This loader handles .tsx files on static hosts like GitHub Pages 
-      by transpiling them on-the-fly via a Service Worker.
+      Modern ESM Runner (GitHub Pages Ready):
+      直接 index.tsx を src に指定せず、esm.sh/run を介して読み込みます。
+      これにより GitHub Pages が TSX を text/plain として返しても、
+      サービスワーカーが正しく JS としてトランスパイルします。
     -->
     <script type="module">
       import { run } from 'https://esm.sh/run';
-      run('./index.tsx');
+      // .tsx の拡張子を明示し、相対パスで実行
+      run('./index.tsx').catch(err => {
+        console.error("Runner Error:", err);
+        document.getElementById('root').innerHTML = '<div style="padding:50px; text-align:center;">システム起動に失敗しました。再読み込みしてください。</div>';
+      });
     </script>
 
-    <!-- Advanced Error Diagnostics -->
+    <!-- エラー診断スクリプト -->
     <script>
         window.addEventListener('error', function(e) {
-            const root = document.getElementById('root');
-            if (root && (root.innerHTML === "" || root.innerHTML.includes('Initializing'))) {
+            // MIME type エラー (octet-stream) が出た場合のユーザー通知
+            if (e.message.includes('MIME type') || e.message.includes('module script')) {
+                const root = document.getElementById('root');
                 root.innerHTML = `
-                <div style="padding: 40px; font-family: sans-serif; text-align: center; background: white; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <div style="font-size: 64px; margin-bottom: 20px;">🏛️</div>
-                    <h2 style="color: #1A1C2C; font-size: 24px; font-family: serif; font-weight: 900;">MusePost 起動エラー診断</h2>
-                    <p style="color: #666; margin-bottom: 24px; max-width: 440px; line-height: 1.6;">
-                        静的ホスティング環境でのモジュール実行に問題が発生しました。GitHub Pagesのキャッシュが原因である場合が多いです。
+                <div style="padding: 40px; font-family: sans-serif; text-align: center; background: #fff; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <h2 style="color: #d63384; font-size: 20px; font-weight: 800;">🚀 互換性エラーを検知しました</h2>
+                    <p style="color: #666; margin: 20px 0; max-width: 400px; line-height: 1.6;">
+                        ブラウザがスクリプトを正しく認識できていません。GitHubのデプロイが完了するまで数秒待ってから、下のボタンを押してください。
                     </p>
-                    <div style="width: 100%; max-width: 650px; text-align: left; background: #f8f9fa; padding: 25px; border-radius: 16px; font-size: 12px; border: 1px solid #eee; overflow-x: auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
-                        <p style="margin-top:0; font-weight: bold; color: #d63384;">Message: ${e.message}</p>
-                        <p style="margin-bottom:0; color: #6c757d;">File: ${e.filename || 'Native Module Loader'}</p>
-                    </div>
-                    <div style="margin-top: 32px; display: flex; gap: 16px;">
-                        <button onclick="location.reload()" style="padding: 14px 32px; background: #1A1C2C; color: white; border: none; border-radius: 99px; cursor: pointer; font-weight: 800; letter-spacing: 0.05em; transition: all 0.2s;">
-                            再読み込み
-                        </button>
-                        <button onclick="window.location.href=window.location.href+'?t='+Date.now()" style="padding: 14px 32px; background: white; color: #1A1C2C; border: 2px solid #1A1C2C; border-radius: 99px; cursor: pointer; font-weight: 800; letter-spacing: 0.05em;">
-                            キャッシュを無視して強制再起動
-                        </button>
-                    </div>
+                    <button onclick="location.reload()" style="padding: 12px 30px; background: #1A1C2C; color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer;">
+                        システムを再起動する
+                    </button>
                 </div>`;
             }
         });
