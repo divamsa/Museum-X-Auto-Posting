@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PostData, PostStatus } from './types';
 import Dashboard from './components/Dashboard';
@@ -36,33 +35,33 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="sticky top-0 z-50 glass-morphism border-b border-stone-200 py-4 px-10">
-        <div className="max-w-[1600px] mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-6">
-            <div className="w-14 h-14 bg-museum flex items-center justify-center rounded-full curator-shadow group cursor-pointer transition-transform hover:rotate-12">
-              <span className="text-white font-serif text-3xl font-black">M</span>
+    <div className="min-h-screen flex flex-col bg-paper">
+      <header className="sticky top-0 z-50 glass-morphism py-5 px-10">
+        <div className="max-w-[1400px] mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-5">
+            <div className="w-12 h-12 bg-navy flex items-center justify-center rounded-xl shadow-xl shadow-navy/10 transition-transform hover:rotate-6">
+              <span className="text-white font-serif text-2xl font-black">M</span>
             </div>
             <div>
-              <h1 className="text-2xl font-serif font-black tracking-tight leading-none text-museum">MusePost</h1>
-              <p className="text-[10px] font-bold text-accent uppercase tracking-[0.3em] mt-2">The Curator's Companion</p>
+              <h1 className="text-xl font-serif font-extrabold tracking-tight leading-none text-navy">MusePost</h1>
+              <p className="text-[9px] font-black text-gold uppercase tracking-[0.2em] mt-1.5">Curator's Digital Assistant</p>
             </div>
           </div>
           
-          <nav className="hidden md:flex items-center gap-2 bg-stone-100/50 p-1.5 rounded-full">
+          <nav className="hidden md:flex items-center gap-2 bg-stone-100/50 p-1 rounded-full">
             {[
               { id: 'docs', label: 'Guide', icon: '🔰' },
               { id: 'generate', label: 'Compose', icon: '✨' },
-              { id: 'dashboard', label: 'Gallery', icon: '📋' },
-              { id: 'settings', label: 'Archive', icon: '⚙️' },
+              { id: 'dashboard', label: 'Archive', icon: '📋' },
+              { id: 'settings', label: 'Settings', icon: '⚙️' },
             ].map(tab => (
               <button 
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`px-8 py-3 rounded-full text-xs font-extrabold transition-all flex items-center gap-3 ${
+                className={`px-6 py-2.5 rounded-full text-xs font-extrabold transition-all flex items-center gap-2 ${
                   activeTab === tab.id 
-                  ? 'bg-museum text-white shadow-xl' 
-                  : 'text-stone-500 hover:text-museum hover:bg-stone-200'
+                  ? 'bg-navy text-white shadow-lg' 
+                  : 'text-stone-500 hover:text-navy hover:bg-stone-200'
                 }`}
               >
                 <span>{tab.icon}</span> {tab.label}
@@ -72,8 +71,8 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <main className="flex-grow max-w-[1600px] mx-auto w-full px-10 py-16">
-        <div className="animate-in fade-in zoom-in-95 duration-1000">
+      <main className="flex-grow max-w-[1400px] mx-auto w-full px-10 py-12">
+        <div className="animate-in fade-in duration-700">
             {activeTab === 'dashboard' && <Dashboard posts={posts} onStatusChange={updatePostStatus} />}
             {activeTab === 'generate' && <PostGenerator onGenerated={addPostsBatch} onComplete={() => setActiveTab('dashboard')} />}
             {activeTab === 'docs' && <Documentation />}
@@ -81,17 +80,14 @@ const App: React.FC = () => {
         </div>
       </main>
 
-      <footer className="bg-museum text-stone-400 py-20 px-10">
-        <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
-          <div className="text-center md:text-left">
-            <h2 className="text-white font-serif text-2xl font-black mb-2 italic">MusePost v3.5</h2>
-            <p className="text-sm font-medium opacity-60">Empowering Cultural Storytelling through Intelligence.</p>
+      <footer className="bg-navy text-stone-500 py-16 px-10">
+        <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+          <div>
+            <h2 className="text-white font-serif text-xl font-bold italic mb-1">MusePost</h2>
+            <p className="text-xs font-medium opacity-50 uppercase tracking-widest">Cultural Heritage Intelligence</p>
           </div>
-          <div className="flex gap-10">
-            <div className="text-center md:text-right">
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] mb-2 text-accent">Status</p>
-              <p className="text-white font-bold text-xs uppercase">All Systems Operational</p>
-            </div>
+          <div className="text-right text-[10px] font-bold uppercase tracking-widest opacity-40">
+            &copy; 2025 Digital Curator Support System
           </div>
         </div>
       </footer>

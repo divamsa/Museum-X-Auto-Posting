@@ -1,2 +1,1 @@
-
-// This file is deprecated. Please use components/Documentation.tsx
+// Deprecated. Root Documentation is moved to components/Documentation.tsx
