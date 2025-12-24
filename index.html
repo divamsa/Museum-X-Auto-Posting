@@ -7,7 +7,7 @@
     
     <!-- Security & Env Shim -->
     <script>
-        // process.env.API_KEYへのアクセスによるクラッシュを防止
+        // process.envへのアクセスによるクラッシュを防止
         window.process = { env: { API_KEY: "" } };
     </script>
 
@@ -50,7 +50,8 @@
 
     <!-- 
         Import Map: 
-        React 19.0.0 に統一。
+        バージョンの不整合（19.0.0 vs 19.2.3）を解消し、
+        完全に一つのバージョンに統一します。
     -->
     <script type="importmap">
 {
@@ -65,42 +66,51 @@
 }
 </script>
 
-    <!-- 
-      Modern ESM Runner:
-      esm.sh/run はサイドエフェクトとして読み込むことで、
-      type="text/tsx" などのスクリプトを自動的にトランスパイル・実行します。
-    -->
+    <!-- esm.sh/run は最新の仕様に基づき、サイドエフェクトとして読み込みます -->
     <script type="module" src="https://esm.sh/run"></script>
 </head>
 <body>
     <div id="root"></div>
 
     <!-- 
-      エントリーポイントの指定:
-      GitHub Pages の MIME タイプ制限を回避するため、
-      ブラウザネイティブの module ではなく text/tsx として読み込ませます。
+      type="text/tsx" として記述することで、
+      esm.sh/run の Service Worker が確実に介入してトランスパイルを行います。
     -->
     <script type="text/tsx">
-      import "./index.tsx";
+      import React from 'react';
+      import { createRoot } from 'react-dom/client';
+      import App from './App.tsx';
+
+      const container = document.getElementById('root');
+      if (container) {
+          const root = createRoot(container);
+          root.render(
+              <React.StrictMode>
+                  <App />
+              </React.StrictMode>
+          );
+          console.log("🏛️ MusePost: App Rendered Successfully.");
+      }
     </script>
 
-    <!-- エラー診断スクリプト -->
+    <!-- タイムアウト診断（30秒経っても起動しない場合） -->
     <script>
-        window.addEventListener('error', function(e) {
-            if (e.message.includes('MIME type') || e.message.includes('module script')) {
-                const root = document.getElementById('root');
+        setTimeout(() => {
+            const root = document.getElementById('root');
+            if (root && root.innerHTML === "") {
                 root.innerHTML = `
-                <div style="padding: 40px; font-family: sans-serif; text-align: center; background: #fff; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <h2 style="color: #d63384; font-size: 20px; font-weight: 800;">🚀 起動エラーを検知しました</h2>
+                <div style="padding: 40px; font-family: sans-serif; text-align: center; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #F9F7F2;">
+                    <h2 style="color: #1A1C2C; font-size: 24px; font-family: serif;">🏛️ 起動に時間がかかっています</h2>
                     <p style="color: #666; margin: 20px 0; max-width: 400px; line-height: 1.6;">
-                        デプロイ直後はキャッシュによりエラーが出ることがあります。数秒待ってから再起動をお試しください。
+                        初めての起動や更新直後は、AIエンジンの準備に時間がかかることがあります。<br>
+                        数秒待ってから「再読み込み」をお試しください。
                     </p>
-                    <button onclick="location.reload()" style="padding: 12px 30px; background: #1A1C2C; color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer;">
+                    <button onclick="location.reload()" style="padding: 12px 30px; background: #C5A059; color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 20px rgba(197,160,89,0.2);">
                         システムを再起動する
                     </button>
                 </div>`;
             }
-        });
+        }, 15000);
     </script>
 </body>
 </html>
