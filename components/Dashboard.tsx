@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { PostData, PostStatus } from '../types';
+import { PostData, PostStatus } from '../types.ts';
 
 interface Props {
   posts: PostData[];
@@ -24,14 +23,13 @@ const Dashboard: React.FC<Props> = ({ posts, onStatusChange }) => {
   };
 
   const latestBatch = posts.slice(0, 10);
-  const archivedPosts = posts.slice(10);
 
   const renderPostCard = (post: PostData) => (
     <div 
       key={post.id} 
-      className={`group relative bg-white border border-stone-200 rounded-[2rem] p-8 transition-all duration-500 curator-shadow ${
+      className={`group relative bg-white border border-stone-200 rounded-[2rem] p-8 transition-all duration-500 shadow-sm ${
         editingId === post.id ? 'ring-2 ring-accent border-transparent z-10 scale-[1.02]' : 
-        post.status === PostStatus.MANUAL ? 'bg-stone-50' : 'hover:-translate-y-2'
+        post.status === PostStatus.MANUAL ? 'bg-stone-50' : 'hover:-translate-y-2 hover:shadow-xl'
       }`}
     >
       <div className="flex justify-between items-center mb-6">

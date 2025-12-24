@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { PostData, PostStatus } from './types';
-import Dashboard from './components/Dashboard';
-import PostGenerator from './components/PostGenerator';
-import Settings from './components/Settings';
-import Documentation from './components/Documentation';
+import { PostData, PostStatus } from './types.ts';
+import Dashboard from './components/Dashboard.tsx';
+import PostGenerator from './components/PostGenerator.tsx';
+import Settings from './components/Settings.tsx';
+import Documentation from './components/Documentation.tsx';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'docs' | 'generate' | 'dashboard' | 'settings'>('docs');

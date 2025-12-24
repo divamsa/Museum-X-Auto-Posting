@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MusePost | 博物館・美術館 広報支援システム</title>
+    <title>MusePost | 博物館・美術館 広報支援</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700;900&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
@@ -28,19 +28,16 @@
         }
     </script>
     <style>
-        body { background-color: #F9F7F2; color: #1A1C2C; margin: 0; overflow-x: hidden; }
+        body { background-color: #F9F7F2; color: #1A1C2C; margin: 0; }
+        #root:empty::before {
+            content: "システムを構築中...";
+            display: flex; justify-content: center; align-items: center; height: 100vh;
+            font-family: serif; font-weight: bold; color: #C5A059; letter-spacing: 0.1em;
+        }
         .glass-morphism {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(197, 160, 89, 0.1);
-        }
-        .curator-shadow {
-            box-shadow: 0 20px 50px -12px rgba(26, 28, 44, 0.1);
-        }
-        #root:empty::before {
-            content: "Initializing MusePost System...";
-            display: flex; justify-content: center; align-items: center; height: 100vh;
-            color: #C5A059; font-weight: bold; font-family: serif; letter-spacing: 0.1em;
         }
     </style>
     <script type="importmap">
@@ -56,20 +53,23 @@
 }
 </script>
 </head>
-<body class="font-sans">
+<body>
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
     <script>
-        window.onerror = function(msg, url, line) {
-            const root = document.getElementById('root');
-            if (root && root.innerHTML === "") {
-                root.innerHTML = `<div style="padding: 50px; text-align: center; font-family: sans-serif;">
-                    <h2 style="color: #b91c1c;">システム起動エラー</h2>
-                    <p>JavaScriptの読み込みに失敗しました。ブラウザを更新してください。</p>
-                    <code style="display: block; margin-top: 20px; color: #666;">${msg}</code>
+        window.addEventListener('error', function(e) {
+            if (e.message.includes('import') || e.message.includes('Fetch')) {
+                const root = document.getElementById('root');
+                root.innerHTML = `<div style="padding: 40px; font-family: sans-serif; text-align: center;">
+                    <h2 style="color: #b91c1c;">🚀 起動の準備をしています</h2>
+                    <p>依存関係の読み込みに時間がかかっています。3〜5秒待ってから「再読み込み」を押してください。</p>
+                    <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #1A1C2C; color: white; border: none; border-radius: 8px; cursor: pointer;">再読み込み</button>
+                    <div style="margin-top: 30px; font-size: 11px; color: #999; text-align: left; background: #eee; padding: 15px; border-radius: 5px;">
+                        Error: ${e.message}<br>File: ${e.filename}
+                    </div>
                 </div>`;
             }
-        };
+        });
     </script>
 </body>
 </html>

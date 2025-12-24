@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
-import { PostData, PostStatus, SourceType } from '../types';
-import { generateXPost } from '../services/gemini';
+import { PostData, PostStatus, SourceType } from '../types.ts';
+import { generateXPost } from '../services/gemini.ts';
 
 interface Props {
   onGenerated: (posts: PostData[]) => void;
@@ -42,7 +41,7 @@ const PostGenerator: React.FC<Props> = ({ onGenerated, onComplete }) => {
 
   return (
     <div className="max-w-5xl mx-auto">
-      <div className="bg-museum p-16 md:p-24 rounded-[4rem] text-white curator-shadow relative overflow-hidden">
+      <div className="bg-museum p-16 md:p-24 rounded-[4rem] text-white relative overflow-hidden shadow-2xl">
         <div className="absolute top-0 right-0 w-96 h-96 bg-accent/20 rounded-full blur-[100px] -mr-20 -mt-20"></div>
         <div className="relative z-10 text-center space-y-8">
           <h2 className="text-7xl font-serif font-black italic tracking-tighter mb-4">Craft 10 Verses</h2>
@@ -72,7 +71,7 @@ const PostGenerator: React.FC<Props> = ({ onGenerated, onComplete }) => {
       </div>
 
       <div className="mt-[-80px] px-8">
-        <form onSubmit={handleSubmit} className="bg-white rounded-[3rem] p-12 curator-shadow border border-stone-100">
+        <form onSubmit={handleSubmit} className="bg-white rounded-[3rem] p-12 border border-stone-100 shadow-xl">
           <textarea
             className="w-full h-80 p-10 bg-stone-50 border-none rounded-[2.5rem] focus:ring-4 focus:ring-accent/10 transition-all text-xl font-medium leading-relaxed outline-none mb-10 placeholder:text-stone-300 shadow-inner"
             placeholder={sourceType === SourceType.URL ? 'Enter exhibition URL...' : '展示の概要、学芸員の想い、チラシの文章などをここに...'}
