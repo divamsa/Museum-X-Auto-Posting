@@ -18,107 +18,104 @@ const Dashboard: React.FC<Props> = ({ posts, onStatusChange }) => {
 
   const handleCopy = (post: PostData) => {
     const text = post.editedBody || post.generatedBody;
-    navigator.clipboard.writeText(text);
-    onStatusChange(post.id, PostStatus.MANUAL);
-    alert('クリップボードにコピーしました！X（Twitter）の投稿画面で貼り付けてください。');
+    navigator.clipboard.writeText(text).then(() => {
+        onStatusChange(post.id, PostStatus.MANUAL);
+    });
   };
 
-  // 最新の10個を「一括生成結果」として強調
   const latestBatch = posts.slice(0, 10);
   const archivedPosts = posts.slice(10);
 
   const renderPostCard = (post: PostData) => (
     <div 
       key={post.id} 
-      className={`group bg-white border-2 rounded-2xl transition-all ${
-        editingId === post.id ? 'border-indigo-500 shadow-xl' : 
-        post.status === PostStatus.DRAFT ? 'border-slate-100 hover:border-indigo-200' : 'border-green-100 bg-green-50/10'
+      className={`group relative bg-white border border-stone-200 rounded-[2rem] p-8 transition-all duration-500 curator-shadow ${
+        editingId === post.id ? 'ring-2 ring-accent border-transparent z-10 scale-[1.02]' : 
+        post.status === PostStatus.MANUAL ? 'bg-stone-50' : 'hover:-translate-y-2'
       }`}
     >
-      <div className="p-5">
-        <div className="flex justify-between items-center mb-3">
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 px-2 py-0.5 rounded">
-            {post.angle || 'Draft'}
-          </span>
-          <button 
+      <div className="flex justify-between items-center mb-6">
+        <span className="text-[10px] font-black text-accent bg-stone-100 px-4 py-1.5 rounded-full uppercase tracking-widest">
+          {post.angle || 'Exhibit'}
+        </span>
+        <button 
             onClick={() => { setEditingId(post.id); setEditBuffer(post.editedBody || post.generatedBody); }}
-            className="text-slate-400 hover:text-indigo-600 transition"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-          </button>
-        </div>
+            className="text-stone-300 hover:text-museum p-2 rounded-full hover:bg-stone-50 transition-colors"
+        >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+        </button>
+      </div>
 
-        {editingId === post.id ? (
-          <div className="space-y-3">
-            <textarea 
-              className="w-full p-3 bg-slate-50 border-2 border-indigo-200 rounded-xl text-sm focus:ring-0 min-h-[100px]"
-              value={editBuffer}
-              onChange={(e) => setEditBuffer(e.target.value)}
-              autoFocus
-            />
-            <div className="flex justify-between items-center">
-              <span className={`text-[10px] font-bold ${editBuffer.length > 140 ? 'text-red-500' : 'text-slate-400'}`}>
-                {editBuffer.length} / 150文字
-              </span>
-              <div className="flex gap-1">
-                <button onClick={() => setEditingId(null)} className="text-[10px] font-bold text-slate-400 px-2">戻る</button>
-                <button onClick={() => saveEdit(post.id)} className="bg-indigo-600 text-white px-3 py-1 rounded-lg text-[10px] font-black shadow-md">保存</button>
-              </div>
+      {editingId === post.id ? (
+        <div className="space-y-4">
+          <textarea 
+            className="w-full p-6 bg-stone-50 border-none rounded-2xl text-base focus:ring-2 focus:ring-accent outline-none font-medium leading-relaxed min-h-[160px]"
+            value={editBuffer}
+            onChange={(e) => setEditBuffer(e.target.value)}
+            autoFocus
+          />
+          <div className="flex justify-between items-center">
+            <span className={`text-[10px] font-black ${editBuffer.length > 140 ? 'text-red-500' : 'text-stone-400'}`}>
+              {editBuffer.length} / 150
+            </span>
+            <div className="flex gap-3">
+              <button onClick={() => setEditingId(null)} className="text-[10px] font-black uppercase text-stone-400">Cancel</button>
+              <button onClick={() => saveEdit(post.id)} className="bg-museum text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-wider">Save</button>
             </div>
           </div>
-        ) : (
-          <p className="text-slate-600 text-sm leading-relaxed mb-4 whitespace-pre-wrap min-h-[60px]">
-            {post.editedBody || post.generatedBody}
-          </p>
-        )}
-
-        <div className="pt-4 border-t border-slate-50 flex justify-between items-center">
-          <span className="text-[9px] text-slate-300 font-mono tracking-tighter uppercase">{post.id.split('-')[0]}</span>
-          <button 
-            onClick={() => handleCopy(post)}
-            className="bg-slate-900 text-white px-4 py-1.5 rounded-xl text-[11px] font-black hover:bg-indigo-600 transition-all shadow-lg shadow-slate-200 active:scale-95"
-          >
-            本文をコピー
-          </button>
         </div>
+      ) : (
+        <p className="text-museum text-lg font-medium leading-[1.8] mb-8 line-clamp-6">
+          {post.editedBody || post.generatedBody}
+        </p>
+      )}
+
+      <div className="mt-auto pt-6 border-t border-stone-50 flex items-center justify-between">
+        <div className="flex flex-col">
+          <span className="text-[9px] font-black text-stone-300 uppercase tracking-tighter">Inventory ID</span>
+          <span className="text-[10px] font-bold text-stone-400">{post.id.split('-')[0].toUpperCase()}</span>
+        </div>
+        <button 
+          onClick={() => handleCopy(post)}
+          className={`flex items-center gap-3 px-8 py-3.5 rounded-full text-xs font-black transition-all shadow-lg active:scale-95 ${
+              post.status === PostStatus.MANUAL 
+              ? 'bg-accent text-white shadow-accent/20' 
+              : 'bg-museum text-white hover:bg-stone-800'
+          }`}
+        >
+          {post.status === PostStatus.MANUAL ? (
+            <><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg> Copied</>
+          ) : 'Copy to X'}
+        </button>
       </div>
     </div>
   );
 
   return (
-    <div className="max-w-7xl mx-auto space-y-12 pb-20">
-      <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200 flex justify-between items-end">
-        <div>
-          <h2 className="text-4xl font-black text-slate-900 tracking-tighter">一括比較ボード</h2>
-          <p className="text-slate-500 font-medium mt-1">生成された10個の案から、最適なものを選別してください。</p>
+    <div className="space-y-24">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-10">
+        <div className="max-w-2xl">
+          <h2 className="text-6xl font-serif font-black text-museum tracking-tighter mb-6 italic">The Collection</h2>
+          <p className="text-stone-500 text-xl font-medium leading-relaxed">
+            AIが構成した10編の物語。館の静寂、興奮、あるいは知的好奇心を最もよく表す一つを選んでください。
+          </p>
         </div>
-        <div className="text-right">
-          <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Total Assets</div>
-          <div className="text-4xl font-black text-slate-900">{posts.length}</div>
+        <div className="flex flex-col items-center justify-center w-40 h-40 border-2 border-stone-100 rounded-full">
+           <span className="text-sm font-black text-stone-300 uppercase tracking-widest mb-1">Items</span>
+           <span className="text-5xl font-serif font-black text-museum">{posts.length}</span>
         </div>
-      </div>
+      </header>
 
       {posts.length === 0 ? (
-        <div className="bg-white border-4 border-dashed border-slate-200 rounded-[3rem] p-32 text-center">
-          <div className="text-7xl mb-6">🖋️</div>
-          <h3 className="text-2xl font-black text-slate-300">まだ投稿データがありません</h3>
-          <p className="text-slate-400 mt-2">「Create」メニューから10個の案を生成してください。</p>
+        <div className="py-40 text-center border-4 border-dashed border-stone-100 rounded-[4rem]">
+          <div className="text-8xl mb-8 opacity-10">🏺</div>
+          <h3 className="text-3xl font-serif font-black text-stone-300 mb-4 italic">No exhibitions found</h3>
+          <p className="text-stone-400 font-bold uppercase tracking-widest text-sm">Start by creating your first post series</p>
         </div>
       ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {latestBatch.map(renderPostCard)}
-          </div>
-
-          {archivedPosts.length > 0 && (
-            <div className="mt-20">
-              <h3 className="text-xl font-black text-slate-300 mb-8 border-t border-slate-200 pt-8 uppercase tracking-[0.3em] text-center">Previous Generations</h3>
-              <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4 opacity-50 hover:opacity-100 transition-opacity">
-                {archivedPosts.map(renderPostCard)}
-              </div>
-            </div>
-          )}
-        </>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+          {latestBatch.map(renderPostCard)}
+        </div>
       )}
     </div>
   );
