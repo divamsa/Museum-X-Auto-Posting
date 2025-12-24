@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MusePost | 博物館・美術館 広報支援</title>
+    <title>MusePost | 博物館・美術館 広報支援システム</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700;900&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
@@ -40,6 +40,12 @@
             border-bottom: 1px solid rgba(197, 160, 89, 0.1);
         }
     </style>
+    <!-- process.env.API_KEYへのアクセスでクラッシュするのを防ぐシム -->
+    <script>
+        if (typeof window.process === 'undefined') {
+            window.process = { env: {} };
+        }
+    </script>
     <script type="importmap">
 {
   "imports": {
@@ -55,18 +61,21 @@
 </head>
 <body>
     <div id="root"></div>
+    <!-- 相対パスを確実に指定 -->
     <script type="module" src="./index.tsx"></script>
     <script>
         window.addEventListener('error', function(e) {
-            if (e.message.includes('import') || e.message.includes('Fetch')) {
-                const root = document.getElementById('root');
-                root.innerHTML = `<div style="padding: 40px; font-family: sans-serif; text-align: center;">
-                    <h2 style="color: #b91c1c;">🚀 起動の準備をしています</h2>
-                    <p>依存関係の読み込みに時間がかかっています。3〜5秒待ってから「再読み込み」を押してください。</p>
-                    <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #1A1C2C; color: white; border: none; border-radius: 8px; cursor: pointer;">再読み込み</button>
-                    <div style="margin-top: 30px; font-size: 11px; color: #999; text-align: left; background: #eee; padding: 15px; border-radius: 5px;">
-                        Error: ${e.message}<br>File: ${e.filename}
+            const root = document.getElementById('root');
+            if (root && (root.innerHTML === "" || root.innerHTML.includes('構築中'))) {
+                root.innerHTML = `<div style="padding: 40px; font-family: sans-serif; text-align: center; background: white; min-height: 100vh;">
+                    <h2 style="color: #b91c1c; font-size: 24px;">🚀 起動エラー診断</h2>
+                    <p style="color: #444; margin-bottom: 20px;">モジュールの読み込み中に問題が発生しました。</p>
+                    <div style="max-width: 600px; margin: 0 auto; text-align: left; background: #fff5f5; padding: 20px; border: 1px solid #feb2b2; border-radius: 12px; font-size: 13px;">
+                        <p><strong>エラー内容:</strong> ${e.message}</p>
+                        <p><strong>発生場所:</strong> ${e.filename || '不明'}:${e.lineno || '?'}</p>
                     </div>
+                    <button onclick="location.reload()" style="margin-top: 30px; padding: 12px 24px; background: #1A1C2C; color: white; border: none; border-radius: 99px; cursor: pointer; font-weight: bold;">再読み込みを試す</button>
+                    <p style="margin-top: 20px; font-size: 12px; color: #999;">※GitHub Pages等の反映には数十秒かかる場合があります。</p>
                 </div>`;
             }
         });

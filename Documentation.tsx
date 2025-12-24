@@ -1,1 +1,1 @@
-// Deprecated. Root Documentation is moved to components/Documentation.tsx
+// This file is moved to components/Documentation.tsx. Please delete this root file.

@@ -1,7 +1,7 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// process.envが未定義でもエラーにならないように保護
+const API_KEY = (typeof process !== 'undefined' && process.env && process.env.API_KEY) ? process.env.API_KEY : "";
 
 export interface GenerationResult {
   title: string;
@@ -10,6 +10,8 @@ export interface GenerationResult {
 }
 
 export const generateXPost = async (input: string, inputType: 'TEXT' | 'URL' | 'FILE'): Promise<GenerationResult[]> => {
+  // 実行直前にインスタンスを生成することで最新のキーを使用
+  const ai = new GoogleGenAI({ apiKey: API_KEY });
   const model = 'gemini-3-flash-preview';
 
   const systemInstruction = `
@@ -17,21 +19,20 @@ export const generateXPost = async (input: string, inputType: 'TEXT' | 'URL' | '
     提供された情報を元に、X（Twitter）向けの投稿案を【必ず10個】、異なる視点や切り口で作成してください。
     
     【生成する10個の役割】
-    1. 【見どころ】目玉作品の紹介
-    2. 【裏話】準備中のエピソードや職員の感想
-    3. 【豆知識】展示品に関連する短い歴史知識
-    4. 【案内】開館時間、アクセス、混雑情報
-    5. 【クイズ】読者に問いかける形式
-    6. 【お子様】家族連れに向けたやさしい言葉遣い
-    7. 【写真】フォトスポットの紹介
-    8. 【ショップ】図録や関連グッズの紹介
-    9. 【期間限定】終了間際の告知や今だけの見どころ
-    10.【情緒】館内の雰囲気や静かな空間の魅力
+    1. 【見どころ】作品の魅力
+    2. 【裏話】準備エピソード
+    3. 【豆知識】歴史背景
+    4. 【案内】開館情報
+    5. 【クイズ】問いかけ
+    6. 【お子様】やさしい解説
+    7. 【写真】映えスポット
+    8. 【ショップ】グッズ紹介
+    9. 【期間限定】終了間際告知
+    10.【情緒】館の雰囲気
     
-    【制約事項】
-    - タイトル: 15文字以内。
-    - 本文: 150文字以内。ハッシュタグは1〜2個。
-    - トーン: 誠実、知的、親しみやすい。
+    【制約】
+    - 本文は150文字以内。
+    - 返信は必ず指定されたJSON形式の配列のみ。
   `;
 
   const prompt = `以下の内容を分析し、10個のバリエーションを作成してください。\n内容: ${input}`;
@@ -61,6 +62,6 @@ export const generateXPost = async (input: string, inputType: 'TEXT' | 'URL' | '
     return JSON.parse(response.text) as GenerationResult[];
   } catch (error) {
     console.error("API Error:", error);
-    throw new Error("生成に失敗しました。少し待ってから再度お試しください。");
+    throw new Error("生成に失敗しました。APIキーまたはネットワークを確認してください。");
   }
 };
