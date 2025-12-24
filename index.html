@@ -7,6 +7,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700;900&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- UI Framework -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -27,12 +29,14 @@
             }
         }
     </script>
+
     <style>
         body { background-color: #F9F7F2; color: #1A1C2C; margin: 0; }
         #root:empty::before {
-            content: "システムを構築中...";
+            content: "Museum Intelligence System Initializing...";
             display: flex; justify-content: center; align-items: center; height: 100vh;
             font-family: serif; font-weight: bold; color: #C5A059; letter-spacing: 0.1em;
+            background: #F9F7F2;
         }
         .glass-morphism {
             background: rgba(255, 255, 255, 0.7);
@@ -40,12 +44,13 @@
             border-bottom: 1px solid rgba(197, 160, 89, 0.1);
         }
     </style>
-    <!-- process.env.API_KEYへのアクセスでクラッシュするのを防ぐシム -->
+
+    <!-- Global Shim -->
     <script>
-        if (typeof window.process === 'undefined') {
-            window.process = { env: {} };
-        }
+        window.process = { env: { API_KEY: "" } };
     </script>
+
+    <!-- Import Map -->
     <script type="importmap">
 {
   "imports": {
@@ -61,21 +66,41 @@
 </head>
 <body>
     <div id="root"></div>
-    <!-- 相対パスを確実に指定 -->
-    <script type="module" src="./index.tsx"></script>
+
+    <!-- 
+      Modern ESM Runner: 
+      This loader handles .tsx files on static hosts like GitHub Pages 
+      by transpiling them on-the-fly via a Service Worker.
+    -->
+    <script type="module">
+      import { run } from 'https://esm.sh/run';
+      run('./index.tsx');
+    </script>
+
+    <!-- Advanced Error Diagnostics -->
     <script>
         window.addEventListener('error', function(e) {
             const root = document.getElementById('root');
-            if (root && (root.innerHTML === "" || root.innerHTML.includes('構築中'))) {
-                root.innerHTML = `<div style="padding: 40px; font-family: sans-serif; text-align: center; background: white; min-height: 100vh;">
-                    <h2 style="color: #b91c1c; font-size: 24px;">🚀 起動エラー診断</h2>
-                    <p style="color: #444; margin-bottom: 20px;">モジュールの読み込み中に問題が発生しました。</p>
-                    <div style="max-width: 600px; margin: 0 auto; text-align: left; background: #fff5f5; padding: 20px; border: 1px solid #feb2b2; border-radius: 12px; font-size: 13px;">
-                        <p><strong>エラー内容:</strong> ${e.message}</p>
-                        <p><strong>発生場所:</strong> ${e.filename || '不明'}:${e.lineno || '?'}</p>
+            if (root && (root.innerHTML === "" || root.innerHTML.includes('Initializing'))) {
+                root.innerHTML = `
+                <div style="padding: 40px; font-family: sans-serif; text-align: center; background: white; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <div style="font-size: 64px; margin-bottom: 20px;">🏛️</div>
+                    <h2 style="color: #1A1C2C; font-size: 24px; font-family: serif; font-weight: 900;">MusePost 起動エラー診断</h2>
+                    <p style="color: #666; margin-bottom: 24px; max-width: 440px; line-height: 1.6;">
+                        静的ホスティング環境でのモジュール実行に問題が発生しました。GitHub Pagesのキャッシュが原因である場合が多いです。
+                    </p>
+                    <div style="width: 100%; max-width: 650px; text-align: left; background: #f8f9fa; padding: 25px; border-radius: 16px; font-size: 12px; border: 1px solid #eee; overflow-x: auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
+                        <p style="margin-top:0; font-weight: bold; color: #d63384;">Message: ${e.message}</p>
+                        <p style="margin-bottom:0; color: #6c757d;">File: ${e.filename || 'Native Module Loader'}</p>
                     </div>
-                    <button onclick="location.reload()" style="margin-top: 30px; padding: 12px 24px; background: #1A1C2C; color: white; border: none; border-radius: 99px; cursor: pointer; font-weight: bold;">再読み込みを試す</button>
-                    <p style="margin-top: 20px; font-size: 12px; color: #999;">※GitHub Pages等の反映には数十秒かかる場合があります。</p>
+                    <div style="margin-top: 32px; display: flex; gap: 16px;">
+                        <button onclick="location.reload()" style="padding: 14px 32px; background: #1A1C2C; color: white; border: none; border-radius: 99px; cursor: pointer; font-weight: 800; letter-spacing: 0.05em; transition: all 0.2s;">
+                            再読み込み
+                        </button>
+                        <button onclick="window.location.href=window.location.href+'?t='+Date.now()" style="padding: 14px 32px; background: white; color: #1A1C2C; border: 2px solid #1A1C2C; border-radius: 99px; cursor: pointer; font-weight: 800; letter-spacing: 0.05em;">
+                            キャッシュを無視して強制再起動
+                        </button>
+                    </div>
                 </div>`;
             }
         });
