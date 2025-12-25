@@ -8,8 +8,18 @@ import Documentation from './components/Documentation.tsx';
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'docs' | 'generate' | 'dashboard' | 'settings'>('docs');
   const [posts, setPosts] = useState<PostData[]>([]);
+  const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
+    // 期限チェック: 2025年12月30日 23:59:59
+    const expiryDate = new Date('2025-12-30T23:59:59').getTime();
+    const now = new Date().getTime();
+    
+    if (now > expiryDate) {
+      setIsExpired(true);
+      return;
+    }
+
     const saved = localStorage.getItem('musepost_v3_5_store');
     if (saved) {
       try {
@@ -33,6 +43,44 @@ const App: React.FC = () => {
     const updated = posts.map(p => p.id === id ? { ...p, status, ...additional } : p);
     savePosts(updated);
   };
+
+  // 期限切れ時の「閉館」画面
+  if (isExpired) {
+    return (
+      <div className="min-h-screen bg-navy flex items-center justify-center p-10 font-serif">
+        <div className="max-w-2xl w-full border border-gold/30 bg-navy p-16 rounded-[1rem] text-center space-y-10 relative overflow-hidden shadow-[0_0_100px_rgba(197,160,89,0.1)]">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-gold"></div>
+          
+          <div className="space-y-4">
+            <h2 className="text-gold text-sm font-black uppercase tracking-[0.4em]">Notification</h2>
+            <h1 className="text-white text-4xl font-black tracking-tighter italic">閉館のお知らせ</h1>
+          </div>
+
+          <div className="w-12 h-12 border-t border-gold mx-auto opacity-30"></div>
+
+          <p className="text-stone-400 text-lg leading-loose font-medium">
+            MusePostをご利用いただき、誠にありがとうございます。<br />
+            本システムの提供期間は <span className="text-white">2025年12月30日</span> をもって<br />
+            終了いたしました。
+          </p>
+
+          <p className="text-stone-500 text-sm leading-relaxed">
+            これまでの皆様の広報活動への多大なる貢献に、心より感謝申し上げます。<br />
+            生成されたデータが必要な場合は、ブラウザのキャッシュをクリアする前に<br />
+            各投稿内容を別途保存してください。
+          </p>
+
+          <div className="pt-10">
+            <div className="inline-flex items-center gap-4 text-gold/50 text-[10px] uppercase tracking-[0.2em] font-black">
+              <span>Cultural Heritage Intelligence</span>
+              <span className="w-1 h-1 bg-gold/50 rounded-full"></span>
+              <span>Finalized</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-paper">
