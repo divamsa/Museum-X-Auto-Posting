@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { PostData, PostStatus } from './types.ts';
 import Dashboard from './components/Dashboard.tsx';
 import PostGenerator from './components/PostGenerator.tsx';
@@ -30,19 +30,26 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const savePosts = (newPosts: PostData[]) => {
+  const savePosts = useCallback((newPosts: PostData[]) => {
     setPosts(newPosts);
     localStorage.setItem('musepost_v3_5_store', JSON.stringify(newPosts));
-  };
+  }, []);
 
-  const addPostsBatch = (newBatch: PostData[]) => {
-    savePosts([...newBatch, ...posts]);
-  };
+  const addPostsBatch = useCallback((newBatch: PostData[]) => {
+    setPosts(prevPosts => {
+      const updated = [...newBatch, ...prevPosts];
+      localStorage.setItem('musepost_v3_5_store', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
 
-  const updatePostStatus = (id: string, status: PostStatus, additional?: Partial<PostData>) => {
-    const updated = posts.map(p => p.id === id ? { ...p, status, ...additional } : p);
-    savePosts(updated);
-  };
+  const updatePostStatus = useCallback((id: string, status: PostStatus, additional?: Partial<PostData>) => {
+    setPosts(prevPosts => {
+      const updated = prevPosts.map(p => p.id === id ? { ...p, status, ...additional } : p);
+      localStorage.setItem('musepost_v3_5_store', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
 
   // 期限切れ時の「閉館」画面
   if (isExpired) {

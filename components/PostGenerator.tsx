@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { PostData, PostStatus, SourceType } from '../types.ts';
 import { generateXPost } from '../services/gemini.ts';
 
@@ -13,7 +13,7 @@ const PostGenerator: React.FC<Props> = ({ onGenerated, onComplete }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputContent.trim()) return;
     setIsGenerating(true);
@@ -37,7 +37,7 @@ const PostGenerator: React.FC<Props> = ({ onGenerated, onComplete }) => {
     } finally {
       setIsGenerating(false);
     }
-  };
+  }, [inputContent, sourceType, onGenerated, onComplete]);
 
   return (
     <div className="max-w-5xl mx-auto">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { PostData, PostStatus } from '../types.ts';
 
 interface Props {
@@ -10,23 +10,22 @@ const Dashboard: React.FC<Props> = ({ posts, onStatusChange }) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editBuffer, setEditBuffer] = useState<string>('');
 
-  const saveEdit = (id: string) => {
+  const saveEdit = useCallback((id: string) => {
     onStatusChange(id, PostStatus.APPROVED, { editedBody: editBuffer });
     setEditingId(null);
-  };
+  }, [editBuffer, onStatusChange]);
 
-  const handleCopy = (post: PostData) => {
+  const handleCopy = useCallback((post: PostData) => {
     const text = post.editedBody || post.generatedBody;
     navigator.clipboard.writeText(text).then(() => {
         onStatusChange(post.id, PostStatus.MANUAL);
     });
-  };
+  }, [onStatusChange]);
 
-  const latestBatch = posts.slice(0, 10);
+  const latestBatch = useMemo(() => posts.slice(0, 10), [posts]);
 
-  const renderPostCard = (post: PostData) => (
+  const renderPostCard = useCallback((post: PostData) => (
     <div 
-      key={post.id} 
       className={`group relative bg-white border border-stone-200 rounded-[2rem] p-8 transition-all duration-500 shadow-sm ${
         editingId === post.id ? 'ring-2 ring-accent border-transparent z-10 scale-[1.02]' : 
         post.status === PostStatus.MANUAL ? 'bg-stone-50' : 'hover:-translate-y-2 hover:shadow-xl'
@@ -87,7 +86,7 @@ const Dashboard: React.FC<Props> = ({ posts, onStatusChange }) => {
         </button>
       </div>
     </div>
-  );
+  ), [editingId, editBuffer, handleCopy, saveEdit]);
 
   return (
     <div className="space-y-24">
@@ -112,7 +111,11 @@ const Dashboard: React.FC<Props> = ({ posts, onStatusChange }) => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {latestBatch.map(renderPostCard)}
+          {latestBatch.map(post => (
+            <div key={post.id}>
+              {renderPostCard(post)}
+            </div>
+          ))}
         </div>
       )}
     </div>
