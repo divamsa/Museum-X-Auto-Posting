@@ -11,8 +11,8 @@ const App: React.FC = () => {
   const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
-    // 期限チェック: 2025年12月30日 23:59:59
-    const expiryDate = new Date('2025-12-30T23:59:59').getTime();
+    // 期限チェック: 2026年1月31日 23:59:59
+    const expiryDate = new Date('2026-01-31T23:59:59').getTime();
     const now = new Date().getTime();
     
     if (now > expiryDate) {
@@ -67,7 +67,7 @@ const App: React.FC = () => {
 
           <p className="text-stone-400 text-lg leading-loose font-medium">
             MusePostをご利用いただき、誠にありがとうございます。<br />
-            本システムの提供期間は <span className="text-white">2025年12月30日</span> をもって<br />
+            本システムの提供期間は <span className="text-white">2026年1月31日</span> をもって<br />
             終了いたしました。
           </p>
 
